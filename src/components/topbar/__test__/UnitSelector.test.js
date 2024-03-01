@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { createPinia, setActivePinia } from "pinia";
+import { createTestingPinia } from "@pinia/testing";
 import { describe, expect, it, test, vi } from "vitest";
 import { userEvent } from "@testing-library/user-event";
 import { render, screen, waitFor } from "@testing-library/vue";
@@ -8,8 +8,7 @@ import { useUnitStore } from "@/stores/unit";
 import UnitSelector from "../UnitSelector.vue";
 
 function setup() {
-  setActivePinia(createPinia());
-  render(UnitSelector);
+  render(UnitSelector, { global: { plugins: [createTestingPinia()] } });
 
   const unitStore = useUnitStore();
   unitStore.$cookies = { get: vi.fn(), set: vi.fn() };
@@ -33,10 +32,10 @@ describe("UnitSelector", () => {
     const user = userEvent.setup();
 
     await user.click(celsius);
-    expect(unitStore.unit).toBe("celsius");
+    waitFor(() => expect(unitStore.unit).toBe("celsius"));
 
     await user.click(fahrenheit);
-    expect(unitStore.unit).toBe("fahrenheit");
+    waitFor(() => expect(unitStore.unit).toBe("fahrenheit"));
   });
 
   describe("when unit is celsius", () => {

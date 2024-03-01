@@ -1,18 +1,13 @@
 import "@testing-library/jest-dom";
-import { describe, expect, it, vi } from "vitest";
-import { createPinia, setActivePinia } from "pinia";
-import {userEvent} from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
+import { userEvent } from "@testing-library/user-event";
 import { render, screen, waitFor } from "@testing-library/vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 
 import TopBar from "../TopBar.vue";
-import { useUnitStore } from "@/stores/unit";
 
 function setup() {
-  setActivePinia(createPinia());
-  const unitStore = useUnitStore();
-  unitStore.$cookies = { get: vi.fn(), set: vi.fn() };
-
   const user = userEvent.setup();
   const history = createMemoryHistory();
   const router = createRouter({
@@ -25,7 +20,7 @@ function setup() {
 
   render(TopBar, {
     global: {
-      plugins: [router],
+      plugins: [router, createTestingPinia()],
     },
   });
 
