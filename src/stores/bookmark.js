@@ -11,7 +11,7 @@ export const useBookmarkStore = defineStore("bookmark", {
   },
   actions: {
     addBookmark(bookmark) {
-      this.bookmarks.push(bookmark);
+      this.bookmarks = [...this.bookmarks, bookmark];
       this.$cookies.set("bookmarks", this.bookmarks);
     },
     removeBookmark(bookmark) {
