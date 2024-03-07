@@ -12,6 +12,11 @@ import {
   FaBookmark,
   FaRegularBookmark,
   PrSpinner,
+  BiSunriseFill,
+  BiSunsetFill,
+  RiCompassDiscoverLine,
+  MdRemoveredeyeRound,
+  GiFog
 } from "oh-vue-icons/icons";
 
 import "./assets/main.css";
@@ -28,7 +33,12 @@ addIcons(
   MdRefresh,
   FaBookmark,
   FaRegularBookmark,
-  PrSpinner
+  PrSpinner,
+  BiSunriseFill,
+  BiSunsetFill,
+  RiCompassDiscoverLine,
+  MdRemoveredeyeRound,
+  GiFog
 );
 
 app.use(pinia);
