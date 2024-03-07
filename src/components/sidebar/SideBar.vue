@@ -4,6 +4,7 @@ import { useQuery } from "vue-query";
 
 import Searchbar from "./SearchBar.vue";
 import WeatherInfo from "./WeatherInfo.vue";
+import capitalize from "@/utils/capitalize";
 import LocationInfo from "./LocationInfo.vue";
 import { useSearchStore } from "@/stores/search";
 import WeatherForecast from "./WeatherForecast.vue";
@@ -14,7 +15,7 @@ const searchStore = useSearchStore();
 const enabled = ref(false);
 
 const { isIdle, isLoading, isError, data, refetch } = useQuery(
-  "forecast",
+  [`forecast-${capitalize(searchStore.search)}`],
   () => getForecastWeather(searchStore.search),
   {
     enabled,
@@ -77,6 +78,8 @@ aside {
   border-top-left-radius: 2rem;
   border-bottom-left-radius: 2rem;
   padding: 2rem;
+  min-width: 332px;
+  height: 100%;
 }
 
 .message {
@@ -116,7 +119,7 @@ aside {
   color: var(--bg-color);
 }
 
-@media (max-width: 500px) {
+@media (max-width: 1024px) {
   aside {
     padding: 1rem;
     border-radius: 0;

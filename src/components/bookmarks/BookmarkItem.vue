@@ -11,7 +11,7 @@ const { locationName } = defineProps({
 });
 
 const { data, isLoading, refetch } = useQuery(
-  `forecast-${locationName}`,
+  [`forecast-${locationName}`],
   () => getForecastWeather(locationName),
   { cacheTime: 1000 * 60 * 15, refetchOnWindowFocus: false }
 );
