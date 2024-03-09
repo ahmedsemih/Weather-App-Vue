@@ -35,7 +35,7 @@ defineProps({
 
 <template>
   <section>
-    <h3 class="title">Today's Highlists</h3>
+    <h3 class="title">Today's Highlights</h3>
     <div class="highlights">
       <SunCard :sunrise="astro.sunrise" :sunset="astro.sunset" />
       <UVIndexCard :uvIndex="uvIndex" />
@@ -62,14 +62,13 @@ defineProps({
 <style scoped>
 .title {
   font-size: 1.5rem;
-  margin-top: 1rem;
+  margin-block: 1rem;
 }
 
 .highlights {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem;
-  padding-block: 1rem;
 }
 
 .highlight-card {

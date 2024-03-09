@@ -18,6 +18,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: .9rem;
 }
 .links {
   display: flex;
@@ -40,5 +41,12 @@ nav {
   color: var(--primary-color);
   border-color: var(--primary-color);
   opacity: 1 !important;
+}
+
+@media (max-width: 400px) {
+  .links {
+    gap: 0.5rem;
+    font-size: 1.2rem;
+  }
 }
 </style>
