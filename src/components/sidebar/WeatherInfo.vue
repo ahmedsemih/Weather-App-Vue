@@ -1,13 +1,23 @@
 <script setup>
+import { computed } from "vue";
+
 import { useUnitStore } from "@/stores/unit";
 import PropCard from "../cards/PropCard.vue";
 
 const unitStore = useUnitStore();
-defineProps({
+const props = defineProps({
   current: {
     type: Object,
     required: true,
   },
+});
+
+const fahrenheitFontSize = computed(() => {
+  return (
+    unitStore.unit === "fahrenheit" &&
+    (props.current.temp_f > 99 || props.current.feelslike_f > 99) &&
+    "4rem"
+  );
 });
 </script>
 
@@ -18,7 +28,11 @@ defineProps({
         <h2 class="condition">{{ current.condition.text }}</h2>
         <div class="temps">
           <div class="temp">
-            <p class="temp-value" aria-label="current temperature">
+            <p
+              class="temp-value"
+              :style="{ fontSize: fahrenheitFontSize }"
+              aria-label="current temperature"
+            >
               {{
                 unitStore.unit === "celsius"
                   ? `${Math.round(current.temp_c)}`
@@ -31,7 +45,11 @@ defineProps({
             <p class="temp-name">Temperature</p>
           </div>
           <div class="temp">
-            <p class="temp-value" aria-label="current feels like">
+            <p
+              class="temp-value"
+              :style="{ fontSize: fahrenheitFontSize }"
+              aria-label="current feels like"
+            >
               {{
                 unitStore.unit === "celsius"
                   ? `${Math.round(current.feelslike_c)}`
