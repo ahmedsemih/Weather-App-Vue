@@ -38,7 +38,6 @@ defineProps({
 .card-title {
   font-size: 1.5rem;
   font-weight: 400;
-  color: var(--text-color-soft);
   margin-bottom: 1rem;
   text-transform: capitalize;
 }
