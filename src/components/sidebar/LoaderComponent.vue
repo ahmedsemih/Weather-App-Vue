@@ -1,10 +1,15 @@
 <template>
-  <v-icon class="spinner" name="pr-spinner" aria-label="loader" />
+  <div class="spinner-wrapper">
+    <v-icon class="spinner" name="pr-spinner" aria-label="loader" />
+  </div>
 </template>
 
 <style scoped>
-.spinner {
+.spinner-wrapper {
   animation: spin 2s linear infinite;
+}
+
+.spinner {
   scale: 2;
   color: var(--primary-color);
 }
