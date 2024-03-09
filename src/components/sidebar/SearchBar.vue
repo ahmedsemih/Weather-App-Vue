@@ -15,12 +15,17 @@ const handleSubmit = () => {
 };
 
 const handleClickLocation = () => {
+  searchStore.setLocationWaiting(true);
   navigator.geolocation.getCurrentPosition(
-    async (position) => {
+    (position) => {
       const { latitude, longitude } = position.coords;
       searchStore.setSearch(`${latitude},${longitude}`);
+      searchStore.setLocationWaiting(false);
     },
-    () => alert("Please allow access to location for use this feature.")
+    () => {
+      alert("Please allow access to location for use this feature.");
+      searchStore.setLocationWaiting(false);
+    }
   );
 };
 

@@ -37,10 +37,10 @@ watch(() => searchStore.search, (newSearch) => {
 <template>
   <aside>
     <Searchbar />
-    <p class="message" v-if="isIdle" aria-label="idle message">
+    <p class="message" v-if="isIdle && !searchStore.locationWaiting" aria-label="idle message">
       Please search for the location where you want to know the weather.
     </p>
-    <div v-else-if="isLoading" class="loading">
+    <div v-else-if="isLoading || searchStore.locationWaiting" class="loading">
       <LoaderComponent />
     </div>
     <p v-else-if="isError" class="message" aria-label="error message">

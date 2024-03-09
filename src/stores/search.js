@@ -7,6 +7,7 @@ export const useSearchStore = defineStore("search", {
 
       return {
         search: "",
+        locationWaiting: false,
         $cookies,
         history: $cookies?.get("history") || [],
       };
@@ -17,6 +18,9 @@ export const useSearchStore = defineStore("search", {
       },
       clearSearch() {
         this.search = "";
+      },
+      setLocationWaiting(status) {
+        this.locationWaiting = status;
       },
       addToHistory(search) {
         const history = this.history;
