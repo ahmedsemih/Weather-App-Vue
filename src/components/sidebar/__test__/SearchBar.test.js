@@ -1,23 +1,33 @@
 import "@testing-library/jest-dom";
 import { describe, expect, it, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
+import { render, screen } from "@testing-library/vue";
 import { userEvent } from "@testing-library/user-event";
-import { render, screen, waitFor } from "@testing-library/vue";
 
 import SearchBar from "../SearchBar.vue";
 import { useSearchStore } from "@/stores/search";
 
-function setup() {
-  render(SearchBar, { global: { plugins: [createTestingPinia()] } });
+function setup(history = []) {
+  const pinia = createTestingPinia();
+  const searchStore = useSearchStore();
+  searchStore.history = history;
+
+  render(SearchBar, { global: { plugins: [pinia] } });
 
   const user = userEvent.setup();
   const searchForm = screen.getByRole("form");
   const searchInput = screen.getByRole("textbox");
   const searchBtn = screen.getByTitle("Search");
-  const historyList = screen.queryByRole("list");
   const locationBtn = screen.getByTitle(/Search by Location/i);
 
-  return { searchForm, searchInput, searchBtn, historyList, locationBtn, user };
+  return {
+    searchForm,
+    searchInput,
+    searchBtn,
+    locationBtn,
+    user,
+    searchStore,
+  };
 }
 
 describe("SearchBar", () => {
@@ -31,8 +41,7 @@ describe("SearchBar", () => {
   });
 
   it("should set search when submitted", async () => {
-    const { searchInput, user } = setup();
-    const searchStore = useSearchStore();
+    const { searchInput, user, searchStore } = setup();
 
     await user.click(searchInput);
     await user.type(searchInput, "istanbul");
@@ -42,8 +51,7 @@ describe("SearchBar", () => {
   });
 
   it("should set search by geolocation when clicked to location button", async () => {
-    const { locationBtn, user } = setup();
-    const searchStore = useSearchStore();
+    const { locationBtn, user, searchStore } = setup();
 
     searchStore.search = "search 1";
     navigator.geolocation = {
@@ -65,8 +73,7 @@ describe("SearchBar", () => {
 
   it('should show alert when clicked to location button and "geolocation" is not available', async () => {
     window.alert = vi.fn();
-    const { locationBtn, user } = setup();
-    const searchStore = useSearchStore();
+    const { locationBtn, user, searchStore } = setup();
 
     searchStore.search = "search 1";
     navigator.geolocation = {
@@ -80,6 +87,7 @@ describe("SearchBar", () => {
     };
 
     await user.click(locationBtn);
+
     expect(searchStore.setSearch).not.toBeCalled();
     expect(window.alert).toHaveBeenCalledWith(
       "Please allow access to location for use this feature."
@@ -87,19 +95,62 @@ describe("SearchBar", () => {
   });
 
   it("should set search when clicked to history item", async () => {
-    const { searchInput, user } = setup();
-    const searchStore = useSearchStore();
-    searchStore.history = ["istanbul", "london", "paris"];
+    const { searchInput, user, searchStore } = setup([
+      "istanbul",
+      "london",
+      "paris",
+    ]);
 
     await user.click(searchInput);
-    await user.click(screen.queryByRole("listitem", /istanbul/i));
+    await user.click(screen.queryByText(/istanbul/i));
 
-    waitFor(() => expect(searchStore.setSearch).toBeCalledWith("istanbul"));
+    expect(searchStore.setSearch).toBeCalledWith("istanbul");
+  });
+
+  it('should move between history items when "ArrowUp" and "ArrowDown" keys are pressed', async () => {
+    const { searchInput, user } = setup(["istanbul", "london", "paris"]);
+
+    await user.click(searchInput);
+    await user.keyboard("{arrowdown}");
+
+    const istanbul = screen.getByText(/istanbul/i);
+    const london = screen.getByText(/london/i);
+    const paris = screen.getByText(/paris/i);
+
+    expect(istanbul.classList.contains("focused")).toBe(true);
+    expect(london.classList.contains("focused")).toBe(false);
+    expect(paris.classList.contains("focused")).toBe(false);
+
+    await user.keyboard("{arrowdown}");
+
+    expect(istanbul.classList.contains("focused")).toBe(false);
+    expect(london.classList.contains("focused")).toBe(true);
+    expect(paris.classList.contains("focused")).toBe(false);
+
+    await user.keyboard("{arrowup}");
+
+    expect(istanbul.classList.contains("focused")).toBe(true);
+    expect(london.classList.contains("focused")).toBe(false);
+    expect(paris.classList.contains("focused")).toBe(false);
+  });
+
+  it('should submit with focused history item when "Enter" key is pressed', async () => {
+    const { searchInput, user, searchStore } = setup([
+      "istanbul",
+      "london",
+      "paris",
+    ]);
+
+    await user.click(searchInput);
+    await user.keyboard("{arrowdown}");
+
+    await user.keyboard("{enter}");
+
+    expect(searchStore.setSearch).toBeCalledWith("istanbul");
   });
 
   it("should not submit when input is empty", async () => {
-    const { searchInput, user } = setup();
-    const searchStore = useSearchStore();
+    const { searchInput, user, searchStore } = setup();
 
     searchStore.search = "search 1";
     searchInput.nodeValue = "";
@@ -109,56 +160,62 @@ describe("SearchBar", () => {
   });
 
   it("should filter history when input is changed", async () => {
-    const { searchInput, user } = setup();
-    const searchStore = useSearchStore();
-    searchStore.history = ["istanbul", "london", "paris"];
+    const { searchInput, user } = setup(["istanbul", "london", "paris"]);
 
     await user.click(searchInput);
     await user.type(searchInput, "istanbul");
 
-    waitFor(() => {
-      expect(screen.queryByRole("listitem", /istanbul/i)).toBeInTheDocument();
-      expect(screen.queryByRole("listitem", /london/i)).not.toBeInTheDocument();
-      expect(screen.queryByRole("listitem", /paris/i)).not.toBeInTheDocument();
-    });
+    const istanbul = screen.queryByText(/istanbul/i);
+    const london = screen.queryByText(/london/i);
+    const paris = screen.queryByText(/paris/i);
+
+    expect(istanbul).toBeInTheDocument();
+    expect(london).not.toBeInTheDocument();
+    expect(paris).not.toBeInTheDocument();
   });
 
   describe("when input is focused", () => {
     it("should show history if histories exists", async () => {
-      const { searchInput, historyList, user } = setup();
-      const searchStore = useSearchStore();
-      searchStore.history = ["search 1", "search 2"];
+      const { searchInput, user } = setup(["search 1", "search 2"]);
 
       await user.click(searchInput);
-      waitFor(() => expect(historyList).toBeInTheDocument());
+      const historyList = screen.queryByRole("list");
+
+      expect(historyList).toBeInTheDocument();
     });
 
     it("should hide history if histories does not exist", async () => {
-      const { searchInput, historyList, user } = setup();
-      const searchStore = useSearchStore();
-      searchStore.history = [];
+      const { searchInput, user } = setup();
 
       await user.click(searchInput);
+
+      const historyList = screen.queryByRole("list");
+
       expect(historyList).not.toBeInTheDocument();
     });
 
     it("should hide history after form submit", async () => {
-      const { searchInput, historyList, user } = setup();
+      const { searchInput, user } = setup();
 
       await user.click(searchInput);
       await user.type(searchInput, "test");
       await user.keyboard("{enter}");
 
-      waitFor(() => expect(historyList).not.toBeInTheDocument());
+      const historyList = screen.queryByRole("list");
+
+      expect(historyList).not.toBeInTheDocument();
     });
   });
 
   describe("when input is blurred", () => {
     it("should hide history", async () => {
-      const { searchInput, historyList, user } = setup();
+      const { searchInput, user } = setup();
 
       await user.click(searchInput);
       await user.tab();
+
+      const historyList = screen.queryByRole("list");
+
       expect(historyList).not.toBeInTheDocument();
     });
   });

@@ -5,6 +5,7 @@ import { useSearchStore } from "@/stores/search";
 const searchStore = useSearchStore();
 
 const search = ref("");
+const hoveredHistory = ref(-1);
 const isHistoryOpen = ref(false);
 const history = ref(searchStore.history || []);
 
@@ -35,15 +36,35 @@ const handleClickHistory = (value) => {
   isHistoryOpen.value = false;
 };
 
-watch(
-  () => search.value,
-  (newSearch) => {
+const handleKeyPress = (event) => {
+  if (event.key === "ArrowDown") {
+    hoveredHistory.value =
+      hoveredHistory.value < searchStore.history.length - 1
+        ? hoveredHistory.value + 1
+        : 0;
+  }
+
+  if (event.key === "ArrowUp") {
+    hoveredHistory.value =
+      hoveredHistory.value > 0
+        ? hoveredHistory.value - 1
+        : searchStore.history.length - 1;
+  }
+
+  if(hoveredHistory.value !== -1 && event.key === "Enter") {
+    search.value = searchStore.history[hoveredHistory.value];
+    searchStore.setSearch(search.value);
+    isHistoryOpen.value = false;
+  }
+};
+
+watch(() => search.value, (newSearch) => {
     isHistoryOpen.value = true;
+    hoveredHistory.value = -1;
     history.value = searchStore.history.filter((historyItem) =>
       historyItem.toLowerCase().includes(newSearch.toLowerCase())
     );
-  }
-);
+});
 </script>
 
 <template>
@@ -67,6 +88,7 @@ watch(
         v-model="search"
         type="text"
         placeholder="Search location"
+        @keyup="handleKeyPress"
       />
       <button class="search-btn" title="Search">
         <v-icon scale="1.5" name="io-search" />
@@ -81,6 +103,7 @@ watch(
           role="button"
           @click="handleClickHistory(historyItem)"
           class="history-item"
+          :class="{ focused: hoveredHistory === index }"
           v-for="(historyItem, index) in history"
           :key="index"
         >
@@ -170,9 +193,15 @@ watch(
   transition: all 200ms;
   font-size: 1.2rem;
   width: 100%;
+  border: 1px solid transparent;
 }
 
 .history-item:hover {
   background-color: var(--border-color) !important;
+}
+
+.focused {
+  background-color: var(--border-color) !important;
+  border: 1px solid var(--text-color-soft);
 }
 </style>
