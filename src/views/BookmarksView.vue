@@ -52,7 +52,7 @@ const bookmarkStore = useBookmarkStore();
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  height: calc(900px - 4rem - 45px);
+  height: calc(900px - 5rem - 45px);
   padding-right: 0.5rem;
 }
 

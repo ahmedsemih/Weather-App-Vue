@@ -38,7 +38,7 @@ watch(() => searchStore.search, (newSearch) => {
   <aside>
     <Searchbar />
     <p class="message" v-if="isIdle && !searchStore.locationWaiting" aria-label="idle message">
-      Please search for the location where you want to know the weather.
+      Please search a location to see current weather.
     </p>
     <div v-else-if="isLoading || searchStore.locationWaiting" class="loading">
       <LoaderComponent />
@@ -84,13 +84,12 @@ aside {
 
 .message {
   margin-block: 2rem 1rem;
-  margin-left: 0.5rem;
   font-size: 1rem;
 }
 
 .loading {
   width: 100%;
-  height: 200px;
+  height: 93%;
   display: flex;
   align-items: center;
   justify-content: center;
