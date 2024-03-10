@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import DetailsView from '@/views/DetailsView.vue';
+import BookmarksView from '@/views/BookmarksView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -6,12 +8,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'Details',
-      component: () => import('../views/DetailsView.vue')
+      component: DetailsView
     },
     {
       path: '/bookmarks',
       name: 'Bookmarks',
-      component: () => import('../views/BookmarksView.vue')
+      component: BookmarksView,
     },
   ]
 })
