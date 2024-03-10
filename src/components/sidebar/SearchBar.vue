@@ -1,8 +1,10 @@
 <script setup>
 import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import { useSearchStore } from "@/stores/search";
 
 const searchStore = useSearchStore();
+const router = useRouter();
 
 const search = ref("");
 const focusedHistory = ref(-1);
@@ -11,11 +13,14 @@ const history = ref(searchStore.history || []);
 
 const handleSubmit = () => {
   if (!search.value) return;
+
+  router.push('/');
   searchStore.setSearch(search.value);
   setHistoryOpen(false);
 };
 
 const handleClickLocation = () => {
+  router.push('/');
   searchStore.setLocationWaiting(true);
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -31,6 +36,7 @@ const handleClickLocation = () => {
 };
 
 const handleClickHistory = (value) => {
+  router.push('/');
   search.value = value;
   searchStore.setSearch(value);
   setHistoryOpen(false);
@@ -54,6 +60,7 @@ const handleKeyPress = (event) => {
   if(event.key === "Escape") setHistoryOpen(false);
 
   if (focusedHistory.value !== -1 && event.key === "Enter") {
+    router.push('/');
     search.value = searchStore.history[focusedHistory.value];
     searchStore.setSearch(search.value);
     setHistoryOpen(false);
@@ -96,6 +103,7 @@ watch(() => search.value, (newSearch) => {
         type="text"
         placeholder="Search location"
         @keyup="handleKeyPress"
+        spellcheck="false"
       />
       <button class="search-btn" title="Search">
         <v-icon scale="1.5" name="io-search" />

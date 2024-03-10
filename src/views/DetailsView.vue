@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useQuery } from "vue-query";
 
 import capitalize from "@/utils/capitalize";
@@ -29,6 +29,13 @@ watch(
     refetch.value();
   }
 );
+
+onMounted(() => {
+  if(!searchStore.search) return;
+
+  enabled.value = true;
+  refetch.value();
+})
 </script>
 
 <template>
