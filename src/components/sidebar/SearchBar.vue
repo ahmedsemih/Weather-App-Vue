@@ -5,14 +5,14 @@ import { useSearchStore } from "@/stores/search";
 const searchStore = useSearchStore();
 
 const search = ref("");
-const hoveredHistory = ref(-1);
+const focusedHistory = ref(-1);
 const isHistoryOpen = ref(false);
 const history = ref(searchStore.history || []);
 
 const handleSubmit = () => {
   if (!search.value) return;
   searchStore.setSearch(search.value);
-  isHistoryOpen.value = false;
+  setHistoryOpen(false);
 };
 
 const handleClickLocation = () => {
@@ -33,38 +33,45 @@ const handleClickLocation = () => {
 const handleClickHistory = (value) => {
   search.value = value;
   searchStore.setSearch(value);
-  isHistoryOpen.value = false;
+  setHistoryOpen(false);
 };
 
 const handleKeyPress = (event) => {
   if (event.key === "ArrowDown") {
-    hoveredHistory.value =
-      hoveredHistory.value < searchStore.history.length - 1
-        ? hoveredHistory.value + 1
+    focusedHistory.value =
+      focusedHistory.value < searchStore.history.length - 1
+        ? focusedHistory.value + 1
         : 0;
   }
 
   if (event.key === "ArrowUp") {
-    hoveredHistory.value =
-      hoveredHistory.value > 0
-        ? hoveredHistory.value - 1
+    focusedHistory.value =
+      focusedHistory.value > 0
+        ? focusedHistory.value - 1
         : searchStore.history.length - 1;
   }
 
-  if(hoveredHistory.value !== -1 && event.key === "Enter") {
-    search.value = searchStore.history[hoveredHistory.value];
+  if(event.key === "Escape") setHistoryOpen(false);
+
+  if (focusedHistory.value !== -1 && event.key === "Enter") {
+    search.value = searchStore.history[focusedHistory.value];
     searchStore.setSearch(search.value);
-    isHistoryOpen.value = false;
+    setHistoryOpen(false);
   }
 };
 
+const setHistoryOpen = (isOpen) => {
+  isHistoryOpen.value = isOpen;
+  focusedHistory.value = -1;
+};
+
 watch(() => search.value, (newSearch) => {
-    isHistoryOpen.value = true;
-    hoveredHistory.value = -1;
+    setHistoryOpen(true);
     history.value = searchStore.history.filter((historyItem) =>
       historyItem.toLowerCase().includes(newSearch.toLowerCase())
     );
-});
+  }
+);
 </script>
 
 <template>
@@ -78,13 +85,13 @@ watch(() => search.value, (newSearch) => {
       <v-icon scale="1.5" name="hi-location-marker" />
     </button>
     <form
-      @mouseleave="isHistoryOpen = false"
+      @mouseleave="setHistoryOpen(false)"
       role="form"
       class="search-form"
       @submit.prevent="handleSubmit"
     >
       <input
-        @focus="isHistoryOpen = true"
+        @focus="setHistoryOpen(true)"
         v-model="search"
         type="text"
         placeholder="Search location"
@@ -103,7 +110,7 @@ watch(() => search.value, (newSearch) => {
           role="button"
           @click="handleClickHistory(historyItem)"
           class="history-item"
-          :class="{ focused: hoveredHistory === index }"
+          :class="{ focused: focusedHistory === index }"
           v-for="(historyItem, index) in history"
           :key="index"
         >

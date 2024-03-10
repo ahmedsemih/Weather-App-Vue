@@ -107,48 +107,6 @@ describe("SearchBar", () => {
     expect(searchStore.setSearch).toBeCalledWith("istanbul");
   });
 
-  it('should move between history items when "ArrowUp" and "ArrowDown" keys are pressed', async () => {
-    const { searchInput, user } = setup(["istanbul", "london", "paris"]);
-
-    await user.click(searchInput);
-    await user.keyboard("{arrowdown}");
-
-    const istanbul = screen.getByText(/istanbul/i);
-    const london = screen.getByText(/london/i);
-    const paris = screen.getByText(/paris/i);
-
-    expect(istanbul.classList.contains("focused")).toBe(true);
-    expect(london.classList.contains("focused")).toBe(false);
-    expect(paris.classList.contains("focused")).toBe(false);
-
-    await user.keyboard("{arrowdown}");
-
-    expect(istanbul.classList.contains("focused")).toBe(false);
-    expect(london.classList.contains("focused")).toBe(true);
-    expect(paris.classList.contains("focused")).toBe(false);
-
-    await user.keyboard("{arrowup}");
-
-    expect(istanbul.classList.contains("focused")).toBe(true);
-    expect(london.classList.contains("focused")).toBe(false);
-    expect(paris.classList.contains("focused")).toBe(false);
-  });
-
-  it('should submit with focused history item when "Enter" key is pressed', async () => {
-    const { searchInput, user, searchStore } = setup([
-      "istanbul",
-      "london",
-      "paris",
-    ]);
-
-    await user.click(searchInput);
-    await user.keyboard("{arrowdown}");
-
-    await user.keyboard("{enter}");
-
-    expect(searchStore.setSearch).toBeCalledWith("istanbul");
-  });
-
   it("should not submit when input is empty", async () => {
     const { searchInput, user, searchStore } = setup();
 
@@ -157,21 +115,6 @@ describe("SearchBar", () => {
     await user.keyboard("{enter}");
 
     expect(searchStore.search).toBe("search 1");
-  });
-
-  it("should filter history when input is changed", async () => {
-    const { searchInput, user } = setup(["istanbul", "london", "paris"]);
-
-    await user.click(searchInput);
-    await user.type(searchInput, "istanbul");
-
-    const istanbul = screen.queryByText(/istanbul/i);
-    const london = screen.queryByText(/london/i);
-    const paris = screen.queryByText(/paris/i);
-
-    expect(istanbul).toBeInTheDocument();
-    expect(london).not.toBeInTheDocument();
-    expect(paris).not.toBeInTheDocument();
   });
 
   describe("when input is focused", () => {
@@ -192,6 +135,77 @@ describe("SearchBar", () => {
       const historyList = screen.queryByRole("list");
 
       expect(historyList).not.toBeInTheDocument();
+    });
+
+    it("should filter history when input is changed", async () => {
+      const { searchInput, user } = setup(["istanbul", "london", "paris"]);
+
+      await user.click(searchInput);
+      await user.type(searchInput, "istanbul");
+
+      const istanbul = screen.queryByText(/istanbul/i);
+      const london = screen.queryByText(/london/i);
+      const paris = screen.queryByText(/paris/i);
+
+      expect(istanbul).toBeInTheDocument();
+      expect(london).not.toBeInTheDocument();
+      expect(paris).not.toBeInTheDocument();
+    });
+
+    it('should move between history items when "ArrowUp" and "ArrowDown" keys are pressed', async () => {
+      const { searchInput, user } = setup(["istanbul", "london", "paris"]);
+
+      await user.click(searchInput);
+      await user.keyboard("{arrowdown}");
+
+      const istanbul = screen.getByText(/istanbul/i);
+      const london = screen.getByText(/london/i);
+      const paris = screen.getByText(/paris/i);
+
+      expect(istanbul.classList.contains("focused")).toBe(true);
+      expect(london.classList.contains("focused")).toBe(false);
+      expect(paris.classList.contains("focused")).toBe(false);
+
+      await user.keyboard("{arrowdown}");
+
+      expect(istanbul.classList.contains("focused")).toBe(false);
+      expect(london.classList.contains("focused")).toBe(true);
+      expect(paris.classList.contains("focused")).toBe(false);
+
+      await user.keyboard("{arrowup}");
+
+      expect(istanbul.classList.contains("focused")).toBe(true);
+      expect(london.classList.contains("focused")).toBe(false);
+      expect(paris.classList.contains("focused")).toBe(false);
+    });
+
+    it('should submit with focused history item when "Enter" key is pressed', async () => {
+      const { searchInput, user, searchStore } = setup([
+        "istanbul",
+        "london",
+        "paris",
+      ]);
+
+      await user.click(searchInput);
+      await user.keyboard("{arrowdown}");
+
+      await user.keyboard("{enter}");
+
+      expect(searchStore.setSearch).toBeCalledWith("istanbul");
+    });
+
+    it('should hide history when "Escape" key is pressed', async () => {
+      const { searchInput, user } = setup(["istanbul", "london", "paris"]);
+
+      await user.click(searchInput);
+      await user.keyboard("{arrowdown}");
+      await user.keyboard("{arrowdown}");
+
+      expect(screen.queryByRole("list")).toBeInTheDocument();
+
+      await user.keyboard("{escape}");
+
+      expect(screen.queryByRole("list")).not.toBeInTheDocument();
     });
 
     it("should hide history after form submit", async () => {
@@ -217,6 +231,33 @@ describe("SearchBar", () => {
       const historyList = screen.queryByRole("list");
 
       expect(historyList).not.toBeInTheDocument();
+    });
+
+    it("should clear focused from history items", async () => {
+      const { searchInput, user } = setup(["istanbul", "london", "paris"]);
+
+      await user.click(searchInput);
+      await user.keyboard("{arrowdown}");
+      await user.keyboard("{arrowdown}");
+
+      const istanbul = screen.getByText(/istanbul/i);
+      const london = screen.getByText(/london/i);
+      const paris = screen.getByText(/paris/i);
+
+      expect(istanbul.classList.contains("focused")).toBe(false);
+      expect(london.classList.contains("focused")).toBe(true);
+      expect(paris.classList.contains("focused")).toBe(false);
+
+      await user.keyboard("{escape}");
+      await user.click(searchInput);
+
+      expect(istanbul.classList.contains("focused")).toBe(false);
+      expect(london.classList.contains("focused")).toBe(false);
+      expect(paris.classList.contains("focused")).toBe(false);
+
+      await user.keyboard("{arrowdown}");
+
+      expect(istanbul.classList.contains("focused")).toBe(true);
     });
   });
 });
