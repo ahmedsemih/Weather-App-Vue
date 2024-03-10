@@ -17,7 +17,7 @@ describe("TodaysHighlights", () => {
       },
     });
 
-    const title = screen.getByRole("heading", { name: "Today's Highlists" });
+    const title = screen.getByRole("heading", { name: "Today's Highlights" });
     const humidityCard = screen.getByRole("heading", { name: /humidity/i });
     const rainChanceCard = screen.getByRole("heading", { name: /chance of rain/i });
     const uvIndexCard = screen.getByRole("heading", { name: /uv index/i });

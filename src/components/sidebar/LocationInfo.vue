@@ -22,7 +22,7 @@ const { addBookmark, removeBookmark, isBookmarked } = bookmarkStore;
     <div>
       <h1 class="name">{{ location.name }}</h1>
       <p class="local-time">
-        Local Time: {{ moment(location.localtime).format("D MMM - hh:mm") }}
+        Local Time: {{ moment(location.localtime).format("D MMM - hh:mm A") }}
       </p>
     </div>
     <div class="buttons">
