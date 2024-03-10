@@ -61,6 +61,7 @@ main {
 @media (max-width: 760px) {
   main {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 </style>
