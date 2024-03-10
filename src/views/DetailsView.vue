@@ -14,7 +14,7 @@ const enabled = ref(false);
 
 const { isIdle, isLoading, isError, data, refetch } = useQuery(
   [`forecast-${capitalize(searchStore.search)}`],
-  () => getForecastWeather(searchStore.search),
+  () => getForecastWeather(capitalize(searchStore.search)),
   {
     enabled,
     cacheTime: 1000 * 60 * 15,
@@ -45,12 +45,12 @@ watch(
     <p class="message" aria-label="error message">
       Somethings went wrong. Please try again.
     </p>
-    <button class="refresh-btn" @click="refetch()" >
-      <v-icon name="md-refresh" />  
+    <button class="refresh-btn" @click="refetch()">
+      <v-icon name="md-refresh" />
       Refresh
     </button>
   </div>
-  <div class="wrapper" v-else-if="!data.forecast" >
+  <div class="wrapper" v-else-if="!data.forecast">
     <v-icon scale="10" name="wi-day-fog" />
     <p class="message" aria-label="not found message">
       "{{ searchStore.search }}" was not found. Please search another location.
@@ -97,7 +97,7 @@ watch(
   border: none;
   display: flex;
   align-items: center;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .message {
@@ -106,7 +106,7 @@ watch(
   text-align: center;
 }
 
-@media screen and (max-width: 1440px){
+@media screen and (max-width: 1440px) {
   .wrapper {
     padding-top: 2rem;
   }

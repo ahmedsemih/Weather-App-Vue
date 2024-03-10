@@ -16,7 +16,7 @@ const enabled = ref(false);
 
 const { isIdle, isLoading, isError, data, refetch } = useQuery(
   [`forecast-${capitalize(searchStore.search)}`],
-  () => getForecastWeather(searchStore.search),
+  () => getForecastWeather(capitalize(searchStore.search)),
   {
     enabled,
     cacheTime: 1000 * 60 * 15,
