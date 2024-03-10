@@ -11,10 +11,11 @@ vi.mock("vue-query", () => ({
   useQuery: vi.fn(),
 }));
 
-function setup({ isIdle, isLoading, isError, data }) {
+function setup({ isIdle, isLoading, isError, data, locationWaiting }) {
   const pinia = createTestingPinia();
   const searchStore = useSearchStore(pinia);
   searchStore.history = ["Istanbul", "London"];
+  searchStore.locationWaiting = locationWaiting || false;
 
   useQuery.mockReturnValue({
     isIdle,
@@ -55,6 +56,23 @@ describe("SideBar", () => {
   it("should render loader when fetching data", () => {
     const { idleMessage, loader, errorMessage, notFoundMessage, locationName } =
       setup({ isIdle: false, isLoading: true, isError: false, data: null });
+
+    expect(idleMessage).not.toBeInTheDocument();
+    expect(loader).toBeInTheDocument();
+    expect(errorMessage).not.toBeInTheDocument();
+    expect(notFoundMessage).not.toBeInTheDocument();
+    expect(locationName).not.toBeInTheDocument();
+  });
+
+  it("should render loader when location waiting is true", () => {
+    const { idleMessage, loader, errorMessage, notFoundMessage, locationName } =
+      setup({
+        isIdle: false,
+        isLoading: false,
+        isError: false,
+        data: null,
+        locationWaiting: true,
+      });
 
     expect(idleMessage).not.toBeInTheDocument();
     expect(loader).toBeInTheDocument();

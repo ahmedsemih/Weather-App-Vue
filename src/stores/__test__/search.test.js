@@ -27,6 +27,16 @@ describe("search store", () => {
     expect(store.$cookies.set).toHaveBeenCalledWith("history", ["test"], "1y");
   });
 
+  it("should set location waiting", () => {
+    const { store } = setup();
+
+    store.setLocationWaiting(true);
+    expect(store.locationWaiting).toBe(true);
+
+    store.setLocationWaiting(false);
+    expect(store.locationWaiting).toBe(false);
+  });
+
   it("should not duplicate items in history", () => {
     const { store } = setup();
 
